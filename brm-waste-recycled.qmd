@@ -1,0 +1,50 @@
+---
+title: "BRM for Waste Recycled"
+execute:
+  echo: false
+  warning: false
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+# Load libraries
+library(tidyverse)
+library(brms)
+
+# Load data
+data <- read_csv("C:/Users/liuyu/Downloads/UsersdkaneDesktopprojects/plastic-pollution/3- share-plastic-fate.csv")
+
+# Rename columns to simpler names
+data <- data %>%
+  rename(
+    waste_recycled = "Share of waste recycled from total regional waste",
+    waste_incinerated = "Share of waste incinerated from total regional waste",
+    waste_mismanaged = "Share of littered and mismanaged from total regional waste",
+    waste_landfilled = "Share of waste landfilled from total regional waste"
+  )
+```
+
+```{r}
+#| label: model
+#| message: false
+
+# Specify the model formula
+model_formula <- bf(waste_recycled ~ waste_incinerated + waste_mismanaged + waste_landfilled)
+
+# Fit the Bayesian regression model
+fit <- brm(
+  formula = model_formula,
+  data = data,
+  family = gaussian(),  # Assuming a normal distribution for the outcome
+  chains = 4,           # Number of Markov chains
+  iter = 2000,          # Number of iterations per chain
+  warmup = 500,         # Number of warmup (burn-in) iterations per chain
+  cores = parallel::detectCores()  # Use all available cores
+)
+
+# Print a summary of the model
+summary(fit)
+```
+
